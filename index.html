@@ -6,27 +6,34 @@
     <title>Single Page Applikation</title>
     <link rel="stylesheet" href="StyleSheet.css">
 </head>
-
 <body>
 <header>
     <h1>Single Page Applikation</h1>
 </header>
-<p>
-    Diese Seite wurde erstellt für eine Arbeit in Fach WebEngineering für die Technische Schule Teko.
-<form>
-    <label for="Start">Start:</label>
-    <input type="text" id="Start" name="Start" placeholder="">
 
-    <label for="End">End:</label>
-    <input type="text" id="End" name="End" placeholder="">
+<main class="container">
+    <p>Diese Seite wurde erstellt für eine Arbeit in Fach WebEngineering für die Technische Schule Teko.</p>
 
-    <button type="submit">Absenden</button>
-</form>
+    <form id="routeForm">
+        <label for="Start">Start:</label>
+        <input type="text" id="Start" name="Start" placeholder="z.B. Zürich HB">
 
-</p>
+        <label for="End">End:</label>
+        <input type="text" id="End" name="End" placeholder="z.B. Bern">
+
+
+        <button type="button" id="submit">Absenden</button>
+    </form>
+
+    <pre id="ergebnis"></pre>
+</main>
+
 <footer>
     <img src="https://www.teko.ch/build/images/TEKO-logo-pink.4cc3e965.svg" alt="TEKO Logo">
     <p>© 2025</p>
 </footer>
+
+
+<script src="app.js" defer></script>
 </body>
 </html>
