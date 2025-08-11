@@ -1,0 +1,68 @@
+/* Reset & Basis */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body-Grundlayout */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+}
+
+/* Haupttext (h1 & p im Body) */
+body > h1,
+body > p {
+    margin: 1.25rem;
+    font-size: 1rem;
+}
+/* Header*/
+header {
+    background-color: #0082e6;
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 0; /* Footer am Ende */
+}
+
+
+/* Footer */
+footer {
+    background-color: #0082e6;
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto; /* Footer am Ende */
+}
+footer img {
+    height: 2.875rem;
+    display: block;
+    margin: 0.5rem auto;
+}
+
+/* Ab 600px: Navigation horizontal */
+@media (min-width: 600px) {
+    nav ul {
+        flex-direction: row;
+        justify-content: center;
+    }
+    nav li + li {
+        margin: 0 0 0 1rem; /* lins 1rem */
+    }
+    nav a {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Ab 1024px: großzügigere Abstände & Schrift */
+@media (min-width: 1024px) {
+    nav a {
+        padding: 1rem 2rem;     /* abstand oben unten 1rem links rechts 2rem */
+        font-size: 1.2rem;
+    }
+}
