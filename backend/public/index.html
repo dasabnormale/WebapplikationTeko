@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Single Page Applikation</title>
     <link rel="stylesheet" href="StyleSheet.css">
+    <script src="app.js" defer></script>
 </head>
 <body>
 <header>
@@ -15,12 +16,13 @@
     <p>Diese Seite wurde erstellt für eine Arbeit in Fach WebEngineering für die Technische Schule Teko.</p>
 
     <form id="routeForm">
-        <label for="Start">Start:</label>
-        <input type="text" id="Start" name="Start" placeholder="z.B. Zürich HB">
+        <label for="Start">Start</label>
+        <input type="text" id="Start" name="Start" placeholder="z.B. Zürich HB" list="StartList">
+        <datalist id="StartList"></datalist>
 
-        <label for="End">End:</label>
-        <input type="text" id="End" name="End" placeholder="z.B. Bern">
-
+        <label for="End">End</label>
+        <input type="text" id="End" name="End" placeholder="z.B. Bern" list="EndList">
+        <datalist id="EndList"></datalist>
 
         <button type="button" id="submit">Absenden</button>
     </form>
@@ -34,6 +36,6 @@
 </footer>
 
 
-<script src="app.js" defer></script>
+
 </body>
 </html>
