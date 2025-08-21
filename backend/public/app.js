@@ -8,7 +8,7 @@
 //await muss noch ersetzt werden
 //css mit variablen arbeiten (bsp. Farbe blau)
 
-//funktionen sollen immer ein Verb beeinhalten
+// funktionen sollen immer ein Verb beeinhalten
 
 
 const apikey = "5b3ce3597851110001cf6248fc8c8feb395847c7a020e880211e1d68";
