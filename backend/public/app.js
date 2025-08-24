@@ -1,162 +1,280 @@
-//todos:
-//backend
-//tests
-//rest api
-//db
-//swagger
-//api key als env variable im backend
-//await muss noch ersetzt werden
-//css mit variablen arbeiten (bsp. Farbe blau)
+//todo backend
+//todo tests
+//todo api
+//todo db
+//todo swagger
+//todo api key as env variable in backend
+//todo await must be replaced
+//todo css with variables (example: color blue)
+//todo functions should always include a verb
+//todo no abbreviations
 
-// funktionen sollen immer ein Verb beeinhalten
+//DOM elemente
+let startInputElement, endInputElement, submitButtonElement, resultElement, startDatalistElement, endDatalistElement;
 
+const startSuggestionCache = new Map();
+const endSuggestionCache = new Map();
 
-const apikey = "5b3ce3597851110001cf6248fc8c8feb395847c7a020e880211e1d68";
-
-let startFeld, endFeld, button, ergebnis, startList, endList;
-
-const cacheStart = new Map();
-const cacheEnd = new Map();
-
-function debounce(fn, miliSeconds = 300) {
-    let time;
-    return (...args) => {
-        clearTimeout(time);
-        //https://developer.mozilla.org/de/docs/Web/API/Window/setTimeout
-        time = setTimeout(() => fn(...args), miliSeconds);
+//entprellfunktion
+function debounce(functionToDebounce, milliseconds = 300) {
+    let timeoutIdentifier;
+    return (...parameters) => {
+        clearTimeout(timeoutIdentifier);
+        timeoutIdentifier = setTimeout(() => functionToDebounce(...parameters), milliseconds);
     };
 }
 
-async function fetchAutocomplete(text) {
-    const url = new URL("https://api.openrouteservice.org/geocode/autocomplete");
-    url.searchParams.set("text", text);
-    url.searchParams.set("size", "5");
-    url.searchParams.set("api_key", apikey);
-    const response = await fetch(url.toString());
-    return response.json();
+//funktion zu autocomplete backend und holt json
+function fetchAutocompleteResults(searchText) {
+    const absoluteUrl = new URL("/api/ors/autocomplete", window.location.origin);
+    absoluteUrl.searchParams.set("text", searchText);
+    absoluteUrl.searchParams.set("size", "5");
+    return fetch(absoluteUrl.toString()).then(httpResponse => httpResponse.json());
 }
 
-function fillDatalist(listElement, features, cache) {
-    listElement.innerHTML = "";
-    features.forEach(f => {
-        const label = f?.properties?.label ?? "";
-        const [longitude, latitude] = f?.geometry?.coordinates ?? [];
-        if (!label || longitude == null || latitude == null)
-            return;
-        const option = document.createElement("option");
-        option.value = label;
-        listElement.appendChild(option);
-        cache.set(label, { lon: longitude, lat: latitude });
+//daten füllen und cache pflegen
+function fillDatalistWithSuggestions(datalistElement, featureList, cacheMap) {
+    datalistElement.innerHTML = "";
+    featureList.forEach(feature => {
+        const suggestionLabel = feature?.properties?.label ?? "";
+        const [longitude, latitude] = feature?.geometry?.coordinates ?? [];
+        if (!suggestionLabel || longitude == null || latitude == null) return;
+
+        const optionElement = document.createElement("option");
+        optionElement.value = suggestionLabel;
+        datalistElement.appendChild(optionElement);
+
+        cacheMap.set(suggestionLabel, { longitude: longitude, latitude: latitude });
     });
 }
 
-const onStartInput = debounce(async () => {
-    const trimmedStartField = startFeld.value.trim();
-    if (trimmedStartField.length < 2)
-        return;
-    const data = await fetchAutocomplete(trimmedStartField);
-    fillDatalist(startList, data.features ?? [], cacheStart);
+//start input mit entprellfunktion
+const handleStartInput = debounce(() => {
+    const trimmedStartInputText = startInputElement.value.trim();
+    if (trimmedStartInputText.length < 2) return;
+    fetchAutocompleteResults(trimmedStartInputText)
+        .then(jsonData => fillDatalistWithSuggestions(startDatalistElement, jsonData.features ?? [], startSuggestionCache));
 }, 300);
 
-const onEndInput = debounce(async () => {
-    const trimmedEndField = endFeld.value.trim();
-    if (trimmedEndField.length < 2) return;
-    const data = await fetchAutocomplete(trimmedEndField);
-    fillDatalist(endList, data.features ?? [], cacheEnd);
+//end input mit entpresllfunktion
+const handleEndInput = debounce(() => {
+    const trimmedEndInputText = endInputElement.value.trim();
+    if (trimmedEndInputText.length < 2) return;
+    fetchAutocompleteResults(trimmedEndInputText)
+        .then(jsonData => fillDatalistWithSuggestions(endDatalistElement, jsonData.features ?? [], endSuggestionCache));
 }, 300);
 
-async function fetchDirections(start, end) {
-    const response = await fetch("https://api.openrouteservice.org/v2/directions/driving-car", {
+//routenabruf in deutsch
+function fetchRouteDirections(startCoordinate, endCoordinate) {
+    return fetch("/api/ors/directions", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": apikey
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             coordinates: [
-                [start.lon, start.lat],
-                [end.lon, end.lat]
+                [startCoordinate.longitude, startCoordinate.latitude],
+                [endCoordinate.longitude, endCoordinate.latitude]
             ],
-            instructions: true
+            instructions: true,
+            language: "de" // wichtig: deutsche Straßennamen/Anweisungen
         })
+    }).then(httpResponse => httpResponse.json());
+}
+
+//zeit formatieren
+function formatSecondsToReadableTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.round((totalSeconds % 3600) / 60);
+    return hours ? `${hours}h ${minutes}m` : `${minutes}m`;
+}
+
+//nichtangeklicktes auch suchen
+function fetchGeocodeSearch(queryText) {
+    const url = new URL("/api/ors/search", window.location.origin);
+    url.searchParams.set("text", queryText);
+    url.searchParams.set("size", "1");
+    return fetch(url.toString()).then(httpResponse => httpResponse.json());
+}
+
+//koordination
+function resolveCoordinates(labelFromInput, cacheMap) {
+    const cached = cacheMap.get(labelFromInput);
+    if (cached) return Promise.resolve({ label: labelFromInput, coord: cached });
+
+    return fetchGeocodeSearch(labelFromInput).then(jsonData => {
+        const firstFeature = (jsonData.features || [])[0];
+        if (!firstFeature) return null;
+        const [longitude, latitude] = firstFeature.geometry?.coordinates || [];
+        const resolvedLabel = firstFeature.properties?.label || labelFromInput;
+        return { label: resolvedLabel, coord: { longitude, latitude } };
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
 }
 
-function formatSeconds(seconds) {
-    const hour = Math.floor(seconds / 3600);
-    const minute = Math.round((seconds % 3600) / 60);
-    return hour ? `${hour}h ${minute}m` : `${minute}m`;
-}
+//validiert eingabe, holt weg, zähler und routenspeichern
+function handleSubmit() {
+    const startLabelInput = startInputElement.value.trim();
+    const endLabelInput = endInputElement.value.trim();
 
-async function onSubmit() {
-    const startLabel = startFeld.value.trim();
-    const endLabel = endFeld.value.trim();
-    const startCache = cacheStart.get(startLabel);
-    const endCache = cacheEnd.get(endLabel);
-    if (!startCache || !endCache) {
-        ergebnis.textContent = "Bitte gültige Start- und Zieladresse aus den Vorschlägen wählen.";
+    if (!startLabelInput || !endLabelInput) {
+        resultElement.textContent = "Please enter both start and end.";
         return;
     }
-    const data = await fetchDirections(startCache, endCache);
-    const summary = data?.routes?.[0]?.summary;
-    const distanceKm = summary ? (summary.distance / 1000).toFixed(1) : "–";
-    const duration = summary ? formatSeconds(summary.duration) : "–";
-    ergebnis.textContent = `Route: ${startLabel} → ${endLabel}\nDistanz: ${distanceKm} km\nDauer: ${duration}`;
-    const steps = data?.routes?.[0]?.segments?.[0]?.steps ?? [];
-    renderSteps(steps);
-    incrementTopSearch(`${startLabel} → ${endLabel}`);
-    renderTopSearches();
+
+    Promise.all([
+        resolveCoordinates(startLabelInput, startSuggestionCache),
+        resolveCoordinates(endLabelInput, endSuggestionCache)
+    ]).then(results => {
+        const startResolved = results[0];
+        const endResolved = results[1];
+
+        if (!startResolved || !endResolved) {
+            resultElement.textContent =
+                "Please choose valid start and end addresses from the suggestions or enter a resolvable address.";
+            return;
+        }
+
+        const startCoordinate = startResolved.coord;
+        const endCoordinate = endResolved.coord;
+        const startLabel = startResolved.label;
+        const endLabel = endResolved.label;
+
+        fetchRouteDirections(startCoordinate, endCoordinate)
+            .then(jsonData => {
+                const routeSummary = jsonData?.routes?.[0]?.summary;
+                const distanceInKilometers = routeSummary ? (routeSummary.distance / 1000).toFixed(1) : "–";
+                const durationFormatted = routeSummary ? formatSecondsToReadableTime(routeSummary.duration) : "–";
+
+                resultElement.textContent =
+                    `Route: ${startLabel} → ${endLabel}\nDistance: ${distanceInKilometers} km\nDuration: ${durationFormatted}`;
+
+                const stepList = jsonData?.routes?.[0]?.segments?.[0]?.steps ?? [];
+                renderStepInstructions(stepList);
+
+                increaseTopRouteSearchCount(`${startLabel} → ${endLabel}`);
+                renderTopRouteSearches();
+
+                const payload = {
+                    startLabel,
+                    startLon: startCoordinate.longitude,
+                    startLat: startCoordinate.latitude,
+                    endLabel,
+                    endLon: endCoordinate.longitude,
+                    endLat: endCoordinate.latitude,
+                    distanceMeters: routeSummary ? Math.round(routeSummary.distance) : null,
+                    durationSeconds: routeSummary ? Math.round(routeSummary.duration) : null,
+                    stepsJson: JSON.stringify(stepList)
+                };
+                saveRouteToBackend(payload).then(() => fetchSavedRoutes().then(renderSavedRoutes));
+            });
+    });
 }
 
-function renderSteps(steps) {
-    let listOfSteps = document.getElementById("steps");
-    if (!listOfSteps) {
-        listOfSteps = document.createElement("ol");
-        listOfSteps.id = "steps";
-        listOfSteps.style.marginTop = "1rem";
-        document.querySelector("main.container").appendChild(listOfSteps);
+//persistenz hilfen
+function saveRouteToBackend(payload) {
+    return fetch("/api/routes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    }).then(httpResponse => httpResponse.json());
+}
+
+function fetchSavedRoutes() {
+    return fetch("/api/routes").then(httpResponse => httpResponse.json());
+}
+
+function deleteSavedRouteById(id) {
+    return fetch(`/api/routes/${id}`, { method: "DELETE" });
+}
+
+//gespeicherte routen rendern und falls nötig listen element erstellen
+function renderSavedRoutes(routeArray) {
+    let listElement = document.getElementById("savedRoutes");
+    if (!listElement) {
+        listElement = document.createElement("ul");
+        listElement.id = "savedRoutes";
+        listElement.style.marginTop = "1rem";
+        document.querySelector("main.container").appendChild(listElement);
     }
-    listOfSteps.innerHTML = steps.map(s => `<li>${s.instruction}</li>`).join("");
+
+    listElement.innerHTML = routeArray.map(route => {
+        const distanceText = route.distanceMeters != null ? `${(route.distanceMeters / 1000).toFixed(1)} km` : "– km";
+        const durationText = route.durationSeconds != null ? formatSecondsToReadableTime(route.durationSeconds) : "–";
+        return `<li data-id="${route.id}">
+            ${route.startLabel} → ${route.endLabel}
+            — ${distanceText}, ${durationText}
+            <button class="deleteSavedRouteButton" data-id="${route.id}">Delete</button>
+        </li>`;
+    }).join("");
+
+    listElement.querySelectorAll(".deleteSavedRouteButton").forEach(buttonElement => {
+        buttonElement.addEventListener("click", () => {
+            const identifier = Number(buttonElement.getAttribute("data-id"));
+            deleteSavedRouteById(identifier)
+                .then(() => fetchSavedRoutes().then(renderSavedRoutes));
+        });
+    });
 }
 
-function incrementTopSearch(key) {
-    const raw = localStorage.getItem("topRoutes") || "{}";
-    const jsonObject = JSON.parse(raw);
-    jsonObject[key] = (jsonObject[key] || 0) + 1;
-    localStorage.setItem("topRoutes", JSON.stringify(jsonObject));
-}
-
-function renderTopSearches() {
-    let list = document.getElementById("topRoutes");
-    if (!list) {
-        list = document.createElement("ul");
-        list.id = "topRoutes";
-        list.style.marginTop = "1rem";
-        document.querySelector("main.container").appendChild(list);
+//schritte rendern und
+function renderStepInstructions(stepList) {
+    let stepListElement = document.getElementById("steps");
+    if (!stepListElement) {
+        stepListElement = document.createElement("ol");
+        stepListElement.id = "steps";
+        stepListElement.style.marginTop = "1rem";
+        document.querySelector("main.container").appendChild(stepListElement);
     }
-    const raw = localStorage.getItem("topRoutes") || "{}";
+    stepListElement.innerHTML = stepList.map(step => `<li>${step.instruction}</li>`).join("");
+}
 
-    //https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
-    //https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-    const entries = Object.entries(JSON.parse(raw))
-        .sort((a,b) => b[1] - a[1])
+//in localstorage gespeicherte start-ziel hochzählen
+function increaseTopRouteSearchCount(routeKey) {
+    const rawJsonString = localStorage.getItem("topRoutes") || "{}";
+    const topRoutesObject = JSON.parse(rawJsonString);
+    topRoutesObject[routeKey] = (topRoutesObject[routeKey] || 0) + 1;
+    localStorage.setItem("topRoutes", JSON.stringify(topRoutesObject));
+}
+
+//rendern der localstorage
+function renderTopRouteSearches() {
+    let topRoutesListElement = document.getElementById("topRoutes");
+    if (!topRoutesListElement) {
+        topRoutesListElement = document.createElement("ul");
+        topRoutesListElement.id = "topRoutes";
+        topRoutesListElement.style.marginTop = "1rem";
+        document.querySelector("main.container").appendChild(topRoutesListElement);
+    }
+
+    const rawJsonString = localStorage.getItem("topRoutes") || "{}";
+    const sortedTopRoutes = Object.entries(JSON.parse(rawJsonString))
+        .sort((leftEntry, rightEntry) => rightEntry[1] - leftEntry[1])
         .slice(0, 10);
-    list.innerHTML = entries.map(([k,v]) => `<li>${k} (${v})</li>`).join("");
+
+    topRoutesListElement.innerHTML = sortedTopRoutes
+        .map(([routeText, searchCount]) => `<li>${routeText} (${searchCount})</li>`)
+        .join("");
 }
 
-function init() {
-    startFeld = document.getElementById("Start");
-    endFeld   = document.getElementById("End");
-    button    = document.getElementById("submit");
-    ergebnis  = document.getElementById("ergebnis");
-    startList = document.getElementById("StartList");
-    endList   = document.getElementById("EndList");
-    startFeld.addEventListener("input", onStartInput);
-    endFeld.addEventListener("input", onEndInput);
-    button.addEventListener("click", onSubmit);
-    renderTopSearches();
+//initialisierung
+function initializeApplication() {
+    startInputElement = document.getElementById("Start");
+    endInputElement = document.getElementById("End");
+    submitButtonElement = document.getElementById("submit");
+    resultElement = document.getElementById("ergebnis");
+    startDatalistElement = document.getElementById("StartList");
+    endDatalistElement = document.getElementById("EndList");
+
+    startInputElement.addEventListener("input", handleStartInput);
+    endInputElement.addEventListener("input", handleEndInput);
+    submitButtonElement.addEventListener("click", handleSubmit);
+
+    renderTopRouteSearches();
+    fetchSavedRoutes().then(renderSavedRoutes);
+
+    [startInputElement, endInputElement].forEach(inputElement => {
+        inputElement.addEventListener("keydown", event => {
+            if (event.key === "Enter") handleSubmit();
+        });
+    });
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", initializeApplication);

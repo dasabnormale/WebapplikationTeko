@@ -1,68 +1,93 @@
-/* Reset & Basis */
+/* =========================
+   CSS Variables (Custom Properties)
+   ========================= */
+:root {
+    --color-primary: #0082e6;
+    --color-primary-text: #ffffff;
+    --font-family-base: Arial, Helvetica, sans-serif;
+
+    --spacing-small: 0.5rem;
+    --spacing-medium: 1rem;
+    --spacing-large: 1.25rem;
+
+    --font-size-small: 1rem;
+    --font-size-medium: 1.2rem;
+}
+
+/* =========================
+   Reset & Base
+   ========================= */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Body-Grundlayout */
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-base);
     line-height: 1.5;
 }
 
-/* Haupttext (h1 & p im Body) */
+/* =========================
+   Text
+   ========================= */
 body > h1,
 body > p {
-    margin: 1.25rem;
-    font-size: 1rem;
+    margin: var(--spacing-large);
+    font-size: var(--font-size-small);
 }
-/* Header*/
+
+/* =========================
+   Header
+   ========================= */
 header {
-    background-color: #0082e6;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
     text-align: center;
-    padding: 1rem 0;
-    margin-top: 0; /* Footer am Ende */
+    padding: var(--spacing-medium) 0;
+    margin-top: 0;
 }
 
-
-/* Footer */
+/* =========================
+   Footer
+   ========================= */
 footer {
-    background-color: #0082e6;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
     text-align: center;
-    padding: 1rem 0;
-    margin-top: auto; /* Footer am Ende */
+    padding: var(--spacing-medium) 0;
+    margin-top: auto;
 }
+
 footer img {
     height: 2.875rem;
     display: block;
-    margin: 0.5rem auto;
+    margin: var(--spacing-small) auto;
 }
 
-/* Ab 600px: Navigation horizontal */
+/* =========================
+   Responsive Navigation
+   ========================= */
 @media (min-width: 600px) {
     nav ul {
         flex-direction: row;
         justify-content: center;
     }
     nav li + li {
-        margin: 0 0 0 1rem; /* lins 1rem */
+        margin: 0 0 0 var(--spacing-medium);
     }
     nav a {
-        padding: 1rem 1.5rem;
-        font-size: 1rem;
+        padding: var(--spacing-medium) 1.5rem;
+        font-size: var(--font-size-small);
     }
 }
 
-/* Ab 1024px: großzügigere Abstände & Schrift */
 @media (min-width: 1024px) {
     nav a {
-        padding: 1rem 2rem;     /* abstand oben unten 1rem links rechts 2rem */
-        font-size: 1.2rem;
+        padding: var(--spacing-medium) 2rem;
+        font-size: var(--font-size-medium);
     }
 }

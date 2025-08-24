@@ -1,16 +1,30 @@
 {
-  "type": "module",
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
-  },
+  "description": "",
+  "type": "module", //nodejs und nicht commonjs
+  "main": "server.js",//einstigspunkt für node
   "author": "",
   "license": "ISC",
-  "description": "",
+  "scripts": {
+    "dev": "node server.js", //startet den server
+    "start": "node server.js",//startet den server
+    "migrate": "prisma migrate dev",//prisma migration um daten in db zu übertagen
+    "generate": "prisma generate",//generiert prisma client
+    "studio": "prisma studio",//startet prisma studio (gui für db)
+    "test:e2e": "playwright test",//führt playwrigth end zu end tests durch
+    "test:e2e:ui": "playwright test --ui"//end zu end tests mit gui
+  },
   "dependencies": {
-    "express": "^5.1.0"
+    "@prisma/client": "^6.14.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "swagger-ui-express": "^5.0.1",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "prisma": "^6.14.0",
+    "@playwright/test": "^1.47.2"
   }
 }

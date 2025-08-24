@@ -1,17 +1,18 @@
+//imports
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
 
+//erstellt express app instanz
 const app = express();
 
-// Recreate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Public assets directory
+//pfad zu frontend
 const PUBLIC_DIR = path.join(__dirname, "public");
 
-// Serve static files
+//statische dateien
 app.use(
     express.static(PUBLIC_DIR, {
         extensions: ["html"],
@@ -25,9 +26,7 @@ app.use(
     })
 );
 
-// Optional: SPA fallback
-// app.get("*", (_, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
-
+//serverstart
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Static server running at http://localhost:${PORT}`);
