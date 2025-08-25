@@ -8,6 +8,14 @@
 //todo css with variables (example: color blue)
 //todo functions should always include a verb
 //todo no abbreviations
+//todo split server.js
+//todo unittests
+//todo not too much details on playwrighttests
+//todo import instead of require
+//todo merge express server (static and api)
+//todo atomic commit
+//todo no innerhtml
+
 
 //DOM elemente
 let startInputElement, endInputElement, submitButtonElement, resultElement, startDatalistElement, endDatalistElement;
