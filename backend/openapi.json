@@ -1,0 +1,90 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Routes API", "version": "1.0.0" },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "paths": {
+    "/api/routes": {
+      "get": {
+        "summary": "List routes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Route" } } } }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create route",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NewRoute" } } }
+        },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/api/routes/{id}": {
+      "get": {
+        "summary": "Get route by id",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete route",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "204": { "description": "No Content" }, "404": { "description": "Not Found" } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Route": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "startLabel": { "type": "string" },
+          "startLon": { "type": "number" },
+          "startLat": { "type": "number" },
+          "endLabel": { "type": "string" },
+          "endLon": { "type": "number" },
+          "endLat": { "type": "number" },
+          "distanceMeters": { "type": "integer", "nullable": true },
+          "durationSeconds": { "type": "integer", "nullable": true },
+          "stepsJson": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "NewRoute": {
+        "type": "object",
+        "required": ["startLabel", "startLon", "startLat", "endLabel", "endLon", "endLat"],
+        "properties": {
+          "startLabel": { "type": "string" },
+          "startLon": { "type": "number" },
+          "startLat": { "type": "number" },
+          "endLabel": { "type": "string" },
+          "endLon": { "type": "number" },
+          "endLat": { "type": "number" },
+          "distanceMeters": { "type": "integer" },
+          "durationSeconds": { "type": "integer" },
+          "stepsJson": { "type": "string" }
+        },
+        "example": {
+          "startLabel": "Zürich, Schweiz",
+          "startLon": 8.54,
+          "startLat": 47.37,
+          "endLabel": "Bern, Schweiz",
+          "endLon": 7.45,
+          "endLat": 46.95,
+          "distanceMeters": 121000,
+          "durationSeconds": 4800,
+          "stepsJson": "[{\"instruction\":\"Head north\"}]"
+        }
+      }
+    }
+  }
+}

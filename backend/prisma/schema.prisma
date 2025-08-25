@@ -1,0 +1,25 @@
+//datenquelle meiner db
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+//erzeugt ein client welcher später server.js importiert
+generator client {
+  provider = "prisma-client-js"
+}
+
+//datenbankmodell
+model Route {
+  id              Int      @id @default(autoincrement())
+  startLabel      String
+  startLon        Float
+  startLat        Float
+  endLabel        String
+  endLon          Float
+  endLat          Float
+  distanceMeters  Int?
+  durationSeconds Int?
+  stepsJson       String?
+  createdAt       DateTime @default(now())
+}
