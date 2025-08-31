@@ -1,18 +1,7 @@
-//todo backend
 //todo tests
-//todo api
-//todo db
-//todo swagger
-//todo api key as env variable in backend
-//todo await must be replaced
-//todo css with variables (example: color blue)
-//todo functions should always include a verb
 //todo no abbreviations
-//todo split server.js
 //todo unittests
 //todo not too much details on playwrighttests
-//todo import instead of require
-//todo merge express server (static and api)
 //todo atomic commit
 //todo no innerhtml
 
