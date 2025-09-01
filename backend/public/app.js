@@ -3,7 +3,6 @@
 //todo unittests
 //todo not too much details on playwrighttests
 //todo atomic commit
-//todo no innerhtml
 
 
 //DOM elemente
@@ -31,7 +30,7 @@ function fetchAutocompleteResults(searchText) {
 
 //daten füllen und cache pflegen
 function fillDatalistWithSuggestions(datalistElement, featureList, cacheMap) {
-    datalistElement.innerHTML = "";
+    datalistElement.replaceChildren();
     featureList.forEach(feature => {
         const suggestionLabel = feature?.properties?.label ?? "";
         const [longitude, latitude] = feature?.geometry?.coordinates ?? [];
@@ -192,22 +191,32 @@ function renderSavedRoutes(routeArray) {
         document.querySelector("main.container").appendChild(listElement);
     }
 
-    listElement.innerHTML = routeArray.map(route => {
+    listElement.replaceChildren();
+
+    routeArray.forEach(route => {
         const distanceText = route.distanceMeters != null ? `${(route.distanceMeters / 1000).toFixed(1)} km` : "– km";
         const durationText = route.durationSeconds != null ? formatSecondsToReadableTime(route.durationSeconds) : "–";
-        return `<li data-id="${route.id}">
-            ${route.startLabel} → ${route.endLabel}
-            — ${distanceText}, ${durationText}
-            <button class="deleteSavedRouteButton" data-id="${route.id}">Delete</button>
-        </li>`;
-    }).join("");
 
-    listElement.querySelectorAll(".deleteSavedRouteButton").forEach(buttonElement => {
-        buttonElement.addEventListener("click", () => {
-            const identifier = Number(buttonElement.getAttribute("data-id"));
-            deleteSavedRouteById(identifier)
-                .then(() => fetchSavedRoutes().then(renderSavedRoutes));
+        const li = document.createElement("li");
+        li.dataset.id = String(route.id);
+
+        const textNode = document.createTextNode(
+            `${route.startLabel} → ${route.endLabel} — ${distanceText}, ${durationText} `
+        );
+        li.appendChild(textNode);
+
+        const button = document.createElement("button");
+        button.className = "deleteSavedRouteButton";
+        button.dataset.id = String(route.id);
+        button.type = "button";
+        button.textContent = "Delete";
+        button.addEventListener("click", () => {
+            const identifier = Number(button.getAttribute("data-id"));
+            deleteSavedRouteById(identifier).then(() => fetchSavedRoutes().then(renderSavedRoutes));
         });
+
+        li.appendChild(button);
+        listElement.appendChild(li);
     });
 }
 
@@ -220,7 +229,14 @@ function renderStepInstructions(stepList) {
         stepListElement.style.marginTop = "1rem";
         document.querySelector("main.container").appendChild(stepListElement);
     }
-    stepListElement.innerHTML = stepList.map(step => `<li>${step.instruction}</li>`).join("");
+
+    stepListElement.replaceChildren();
+
+    stepList.forEach(step => {
+        const li = document.createElement("li");
+        li.textContent = step.instruction;
+        stepListElement.appendChild(li);
+    });
 }
 
 //in localstorage gespeicherte start-ziel hochzählen
@@ -246,9 +262,13 @@ function renderTopRouteSearches() {
         .sort((leftEntry, rightEntry) => rightEntry[1] - leftEntry[1])
         .slice(0, 10);
 
-    topRoutesListElement.innerHTML = sortedTopRoutes
-        .map(([routeText, searchCount]) => `<li>${routeText} (${searchCount})</li>`)
-        .join("");
+    topRoutesListElement.replaceChildren();
+
+    sortedTopRoutes.forEach(([routeText, searchCount]) => {
+        const li = document.createElement("li");
+        li.textContent = `${routeText} (${searchCount})`;
+        topRoutesListElement.appendChild(li);
+    });
 }
 
 //initialisierung
