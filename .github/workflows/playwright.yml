@@ -27,6 +27,9 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    env:
+      DATABASE_URL: "file:./prisma/dev.db"
+      ORS_API_KEY: ${{ secrets.ORS_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,12 +38,34 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
-      - run: echo "ORS_API_KEY=${{ secrets.ORS_API_KEY }}" > .env
-      - run: npx playwright install --with-deps
-      - run: npx playwright test
+
+      - name: Write .env for app
+        run: |
+          echo "DATABASE_URL=${DATABASE_URL}" > .env
+          echo "ORS_API_KEY=${ORS_API_KEY}" >> .env
+
+      - name: Prepare database (Prisma)
+        run: |
+          npx prisma migrate deploy || npx prisma db push
+          npx prisma generate
+          if [ -f prisma/seed.js ]; then node prisma/seed.js; else echo "no seed"; fi
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: backend/playwright-report/
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results
+          path: backend/test-results/
           retention-days: 14
