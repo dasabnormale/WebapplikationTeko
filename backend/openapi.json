@@ -6,38 +6,70 @@
     "/api/routes": {
       "get": {
         "summary": "List routes",
+        "tags": ["routes"],
+        "operationId": "listRoutes",
         "responses": {
           "200": {
             "description": "OK",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Route" } } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Route" } }
+              }
+            }
           }
         }
       },
       "post": {
         "summary": "Create route",
+        "tags": ["routes"],
+        "operationId": "createRoute",
         "requestBody": {
           "required": true,
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NewRoute" } } }
         },
         "responses": {
-          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
-          "400": { "description": "Bad Request" }
+          "201": {
+            "description": "Created",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } }
+          },
+          "400": {
+            "description": "Validation errors",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Errors" } } }
+          }
         }
       }
     },
     "/api/routes/{id}": {
       "get": {
         "summary": "Get route by id",
+        "tags": ["routes"],
+        "operationId": "getRouteById",
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
         "responses": {
-          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } } },
+          "200": {
+            "description": "OK",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Route" } } }
+          },
+          "400": {
+            "description": "Invalid id",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
           "404": { "description": "Not Found" }
         }
       },
       "delete": {
         "summary": "Delete route",
+        "tags": ["routes"],
+        "operationId": "deleteRoute",
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "responses": { "204": { "description": "No Content" }, "404": { "description": "Not Found" } }
+        "responses": {
+          "204": { "description": "No Content" },
+          "400": {
+            "description": "Invalid id",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": { "description": "Not Found" }
+        }
       }
     }
   },
@@ -45,6 +77,7 @@
     "schemas": {
       "Route": {
         "type": "object",
+        "required": ["id", "startLabel", "startLon", "startLat", "endLabel", "endLon", "endLat", "createdAt"],
         "properties": {
           "id": { "type": "integer" },
           "startLabel": { "type": "string" },
@@ -57,6 +90,19 @@
           "durationSeconds": { "type": "integer", "nullable": true },
           "stepsJson": { "type": "string", "nullable": true },
           "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "example": {
+          "id": 1,
+          "startLabel": "Zürich, Schweiz",
+          "startLon": 8.54,
+          "startLat": 47.37,
+          "endLabel": "Bern, Schweiz",
+          "endLon": 7.45,
+          "endLat": 46.95,
+          "distanceMeters": 121000,
+          "durationSeconds": 4800,
+          "stepsJson": "[{\"instruction\":\"Head north\"}]",
+          "createdAt": "2025-09-01T12:34:56.000Z"
         }
       },
       "NewRoute": {
@@ -84,6 +130,16 @@
           "durationSeconds": 4800,
           "stepsJson": "[{\"instruction\":\"Head north\"}]"
         }
+      },
+      "Error": {
+        "type": "object",
+        "properties": { "error": { "type": "string" } },
+        "example": { "error": "invalid id" }
+      },
+      "Errors": {
+        "type": "object",
+        "properties": { "errors": { "type": "array", "items": { "type": "string" } } },
+        "example": { "errors": ["startLabel required", "startLon number required"] }
       }
     }
   }
