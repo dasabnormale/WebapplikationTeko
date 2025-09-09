@@ -56,38 +56,8 @@ Läuft mit Playwright.
 
 Die OpenRouteService-Requests werden im Test gemockt, daher ist kein echter API-Key nötig.
 
-# Projektstruktur (Auszug)
-backend/
-
-public/
-
-index.html
-
-StyleSheet.css
-
-app.js
-
-openapi.json
-
-server.js
-
-routes.js
-
-ors.js
-
-index.js
-
-prisma/
-
-schema.prisma
-
-dev.db
-
-tests/
-
-assignment.test.js        # Playwright (E2E)
-
-unit/                     # Vitest (Unit)
+# Projektstruktur
+![Projektstruktur](./backend/projectstruct.png)
 
 # Funktionen der Anwendung
 
@@ -162,31 +132,34 @@ Datenbankzugriff über ORM-Methoden (findMany, create, delete), keine Raw-SQL-St
 
 ## Frontend
 
-Vanilla JavaScript (public/app.js)
+Stack: Vanilla JavaScript (`public/app.js`)
 
-Autocomplete und Suche (per fetch an die eigenen Proxy-Endpunkte).
+Features:
 
-Routenberechnung, Anzeige von Distanz und Dauer.
+Autocomplete & Suche (per `fetch` an eigene Proxy-Endpunkte)
 
-Rendering der Schritt-Anweisungen.
+Routenberechnung mit Anzeige von Distanz & Dauer
 
-Top-10 Routen im localStorage zählen und anzeigen.
+Rendering der Schritt-Anweisungen
 
-Tests
+Top-10 Routen im `localStorage` zählen & anzeigen
 
-Playwright (E2E)
+## Tests
 
-Konfiguration: backend/playwright.config.js
+### End-to-End (Playwright)
 
-Startet die App, füllt Formulare, prüft Ergebnis und Schritte.
+Konfiguration: `backend/playwright.config.js`
 
-ORS-Calls werden im Test gemockt.
+Ablauf: Startet App → füllt Formulare → prüft Ergebnis & Schritte
 
-#Vitest (Unit)
+Hinweis: ORS-Calls werden gemockt (kein echter API-Key nötig)
 
-Konfiguration über backend/package.json (vitest.test.environment = jsdom).
+### Unit (Vitest)
 
-Testverzeichnis: backend/tests/unit/.
+Konfiguration: `backend/package.json` (`vitest.test.environment = jsdom`)
+
+Testverzeichnis: `backend/tests/unit/`
+
 
 ## API-Dokumentation
 
