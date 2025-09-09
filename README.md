@@ -4,8 +4,11 @@ Als benotete Modularbeit erstellt (TEKO Bern Fach Webentwicklung)
 
 ## Installation
 cd backend
+
 npm install
+
 npm run generate
+
 npm run migrate
 
 # Umgebungsvariablen
@@ -13,10 +16,12 @@ npm run migrate
 Erstelle im Ordner backend/ eine Datei .env:
 
 ORS_API_KEY=DEIN_OPENROUTESERVICE_KEY
+
 DATABASE_URL="file:./prisma/dev.db"
 
 # Start
 cd backend
+
 npm run start
 
 
@@ -30,6 +35,7 @@ Swagger UI: http://localhost:3000/docs
 https://www.reddit.com/r/nextjs/comments/1hvf227/new_to_testing_what_would_you_recommend_in_2025/
 ## Unit-Tests
 cd backend
+
 npm run test:unit
 
 
@@ -39,7 +45,9 @@ Getestet werden die selbst geschriebenen Frontend-Helfer (Formatierung, Debounce
 
 ## End-to-End-Tests (Akzeptanztests)
 cd backend
+
 npx playwright test
+
 ### Report öffnen:
 npx playwright show-report
 
@@ -50,20 +58,35 @@ Die OpenRouteService-Requests werden im Test gemockt, daher ist kein echter API-
 
 # Projektstruktur (Auszug)
 backend/
+
 public/
+
 index.html
+
 StyleSheet.css
+
 app.js
+
 openapi.json
+
 server.js
+
 routes.js
+
 ors.js
+
 index.js
+
 prisma/
+
 schema.prisma
+
 dev.db
+
 tests/
+
 assignment.test.js        # Playwright (E2E)
+
 unit/                     # Vitest (Unit)
 
 # Funktionen der Anwendung
@@ -82,44 +105,56 @@ Zählen der meistgesuchten Routen im Browser-Speicher und Anzeige der Top-10.
 ### Express
 
 import express from "express";
+
 const app = express();
+
 app.use(express.json());
+
 app.use(express.static("public"));
 
 
 ### CORS
 
 import cors from "cors";
+
 app.use(cors());
 
 
 ### dotenv
 
 import dotenv from "dotenv";
+
 dotenv.config();
 
 
 ### swagger-ui-express
 
 import swaggerUi from "swagger-ui-express";
+
 import fs from "fs";
+
 import path from "path";
 
 const openapiJson = JSON.parse(fs.readFileSync(path.join(__dirname, "openapi.json"), "utf-8"));
+
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiJson));
 
 
 ## node-fetch (Proxy zu OpenRouteService)
 
 import fetch from "node-fetch";
+
 // /api/ors/autocomplete  -> https://api.openrouteservice.org/geocode/autocomplete
+
 // /api/ors/search        -> https://api.openrouteservice.org/geocode/search
+
 // /api/ors/directions    -> https://api.openrouteservice.org/v2/directions/driving-car
 
 
 ### Prisma Client
 
 import { PrismaClient } from "@prisma/client";
+
 const prismaClient = new PrismaClient();
 
 
@@ -180,14 +215,20 @@ Optional: serverseitige Validierung vor dem DB-Schreiben.
 Nützliche Skripte
 # Entwicklung
 npm run dev
+
 npm run start
 
 # Prisma
 npm run generate
+
 npm run migrate
+
 npm run studio
+
 
 # Tests
 npm run test:unit
+
 npm run test:e2e
+
 npm run test:e2e:ui
