@@ -1,17 +1,21 @@
-#Installation
+# WebapplikationTeko
+
+Als benotete Modularbeit erstellt (TEKO Bern Fach Webentwicklung)
+
+## Installation
 cd backend
 npm install
 npm run generate
 npm run migrate
 
-#Umgebungsvariablen
+# Umgebungsvariablen
 
 Erstelle im Ordner backend/ eine Datei .env:
 
 ORS_API_KEY=DEIN_OPENROUTESERVICE_KEY
 DATABASE_URL="file:./prisma/dev.db"
 
-#Start
+# Start
 cd backend
 npm run start
 
@@ -22,9 +26,9 @@ Health: http://localhost:3000/health
 
 Swagger UI: http://localhost:3000/docs
 
-#Tests
+# Tests
 https://www.reddit.com/r/nextjs/comments/1hvf227/new_to_testing_what_would_you_recommend_in_2025/
-Unit-Tests
+## Unit-Tests
 cd backend
 npm run test:unit
 
@@ -33,10 +37,10 @@ Läuft mit Vitest in JSDOM.
 
 Getestet werden die selbst geschriebenen Frontend-Helfer (Formatierung, Debounce, Rendering, LocalStorage, Netzwerk-Helper) sowie optional die Backend-Validierung.
 
-End-to-End-Tests (Akzeptanztests)
+## End-to-End-Tests (Akzeptanztests)
 cd backend
 npx playwright test
-# Report öffnen:
+### Report öffnen:
 npx playwright show-report
 
 
@@ -44,7 +48,7 @@ Läuft mit Playwright.
 
 Die OpenRouteService-Requests werden im Test gemockt, daher ist kein echter API-Key nötig.
 
-Projektstruktur (Auszug)
+# Projektstruktur (Auszug)
 backend/
 public/
 index.html
@@ -62,7 +66,7 @@ tests/
 assignment.test.js        # Playwright (E2E)
 unit/                     # Vitest (Unit)
 
-#Funktionen der Anwendung
+# Funktionen der Anwendung
 
 Eingabe von Start und Ziel, Routenberechnung und Anzeige von Distanz und Dauer.
 
@@ -72,10 +76,10 @@ Speichern persönlicher Routen in der Datenbank über eine REST-Schnittstelle.
 
 Zählen der meistgesuchten Routen im Browser-Speicher und Anzeige der Top-10.
 
-Verwendete Technologien und Einbindung
-Server und API
+# Verwendete Technologien und Einbindung
+## Server und API
 
-#Express
+### Express
 
 import express from "express";
 const app = express();
@@ -83,19 +87,19 @@ app.use(express.json());
 app.use(express.static("public"));
 
 
-CORS
+### CORS
 
 import cors from "cors";
 app.use(cors());
 
 
-dotenv
+### dotenv
 
 import dotenv from "dotenv";
 dotenv.config();
 
 
-swagger-ui-express
+### swagger-ui-express
 
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
@@ -105,7 +109,7 @@ const openapiJson = JSON.parse(fs.readFileSync(path.join(__dirname, "openapi.jso
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiJson));
 
 
-node-fetch (Proxy zu OpenRouteService)
+## node-fetch (Proxy zu OpenRouteService)
 
 import fetch from "node-fetch";
 // /api/ors/autocomplete  -> https://api.openrouteservice.org/geocode/autocomplete
@@ -113,7 +117,7 @@ import fetch from "node-fetch";
 // /api/ors/directions    -> https://api.openrouteservice.org/v2/directions/driving-car
 
 
-#Prisma Client
+### Prisma Client
 
 import { PrismaClient } from "@prisma/client";
 const prismaClient = new PrismaClient();
@@ -121,7 +125,7 @@ const prismaClient = new PrismaClient();
 
 Datenbankzugriff über ORM-Methoden (findMany, create, delete), keine Raw-SQL-Strings.
 
-#Frontend
+## Frontend
 
 Vanilla JavaScript (public/app.js)
 
@@ -149,7 +153,7 @@ Konfiguration über backend/package.json (vitest.test.environment = jsdom).
 
 Testverzeichnis: backend/tests/unit/.
 
-API-Dokumentation
+## API-Dokumentation
 
 Datei: backend/openapi.json
 
@@ -165,7 +169,7 @@ GET /api/routes/{id}
 
 DELETE /api/routes/{id}
 
-Schutz vor SQL-Injection
+## Schutz vor SQL-Injection
 
 Kein Raw-SQL.
 
