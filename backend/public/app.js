@@ -1,10 +1,3 @@
-//todo tests
-//todo no abbreviations
-//todo unittests
-//todo not too much details on playwrighttests
-//todo atomic commit
-
-
 //DOM elemente
 let startInputElement, endInputElement, submitButtonElement, resultElement, startDatalistElement, endDatalistElement;
 
